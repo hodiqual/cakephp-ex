@@ -1,4 +1,29 @@
 <?php
+
+$SERVICE_ID = YOUR_SERVICE_ID;
+$SERVICE_SECRET = YOUR_SERVICE_SECRET;
+$ts = time();
+$msg = utf8_encode($SERVICE_ID . $ts);
+$hashed = hash_hmac('sha256', $msg, utf8_encode($SERVICE_SECRET), true);
+$message = utf8_decode(base64_encode($hashed));
+$headers = array(
+    'ww-service-signature:' . $message,
+    'ww-timestamp:' . $ts,
+    'ww-service-id:' . $SERVICE_ID
+);
+
+$curl = curl_init();
+curl_setopt($curl, CURLOPT_URL, 'https://api.workwell.io/1.0/developer/service/token');
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
+curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+$httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+curl_close($curl);
+
 /**
  * The Front Controller for handling every request
  *
